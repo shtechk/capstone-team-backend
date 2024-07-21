@@ -1,38 +1,44 @@
 const express = require("express");
-const connectDB = require("./database");
+
+const passport = require("./config/passport"); // Ensure passport is required and configured
+const dotenv = require("dotenv");
+const connectDB = require("./config/database"); // Import the database connection
+const userRoutes = require("./api/user/routes");
+const businessRoutes = require("./api/business/routes");
+const errorHandler = require("./middlewares/errorHandler"); // Assuming you have this middleware
+const notFoundHandler = require("./middlewares/notFoundHandler"); // Assuming you have this middleware
+const voucherRouter = require("./apis/vouchers/routes");
+const ratingRouter = require("./apis/ratings/routes");
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
-const notFoundHandler = require("./middlewares/notFoundHandler");
-const errorHandler = require("./middlewares/errorHandler");
-const { localStrategy, jwtStrategy } = require("./middlewares/passport");
-const passport = require("passport");
-const voucherRouter = require("./apis/vouchers/routes");
-const ratingRouter = require("./apis/ratings/routes");
+// Load environment variables from .env file
+dotenv.config();
+
+// Connect to the database
+connectDB();
 
 const app = express();
 
-connectDB();
-
 app.use(express.json());
-app.use(cors());
+
+// Initialize Passport.js
+app.use(passport.initialize());
 
 app.use(morgan("dev"));
-//passport
-app.use(passport.initialize());
-passport.use("local", localStrategy);
-passport.use("jwt", jwtStrategy);
 
-//multer
-app.use("/media", express.static(path.join(__dirname, "media")));
-
-//Routes here...
+// Register routes
+app.use("/api/users", userRoutes);
+app.use("/api/businesses", businessRoutes);
 app.use("/vouchers", voucherRouter);
 app.use("/ratings", ratingRouter);
 
-app.use(notFoundHandler);
+// Error handling middleware
 app.use(errorHandler);
+app.use(notFoundHandler);
 
-app.listen(8000, () => {
-  console.log("localhost 8000");
+// Start the server
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
