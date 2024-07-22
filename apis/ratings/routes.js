@@ -1,4 +1,5 @@
 const express = require("express");
+const { addRating, getAllRatings } = require("./controllers");
 
 const ratingRouter = express.Router();
 

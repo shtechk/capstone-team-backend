@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const { model, Schema } = require("mongoose");
 
 const PlaceSchema = new Schema({
