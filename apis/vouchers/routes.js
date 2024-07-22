@@ -1,4 +1,5 @@
 const express = require("express");
+const { getAllVouchers, createVoucher } = require("./controllers");
 
 const voucherRouter = express.Router();
 

@@ -2,13 +2,14 @@ const User = require("../../models/User");
 const Voucher = require("../../models/Voucher");
 
 //either all vouchers created by you // and // all vouchers sent to you
+//i choose all vouchers sent to you
 
 const getAllVouchers = async (req, res, next) => {
   //jwt strategy on route
   try {
-    const user = await User.findById(req.user._id); // check if true
-    const vouchers = await Voucher.find({ phoneNumber: user.phoneNumber }); //if token have phone number i only have to use req.user.phoneNumber and no need for const ABOVE!!!!!
-    return res.status(200).json(vouchers);
+    const user = await User.findById(req.user._id).populate("vouchers"); // check if true
+    // const vouchers = await Voucher.find({ phoneNumber: user.phoneNumber }); //if token have phone number i only have to use req.user.phoneNumber and no need for const ABOVE!!!!!
+    return res.status(200).json(user.vouchers);
   } catch (error) {
     next(error);
   }
@@ -24,14 +25,20 @@ const createVoucher = async (req, res, next) => {
 
     const userReciever = await User.find({ phoneNumber: req.body.phoneNumber });
     const userSender = await User.find({ phoneNumber: req.user.phoneNumber }); //check with shahad phoneNumber regarding feild
-    if (userReciever && !userSender) {
+    if (userReciever._id != userSender._id) {
       const newVoucher = await Voucher.create(req.body);
+      // await Place.findByIdAndUpdate(req.body.place, {
+      //   $push: { ratings: newRating },
+      // });
+      await User.findByIdAndUpdate(req.body.user, {
+        $push: { vouchers: newVoucher },
+      });
 
       // push the voucher to the user's list of vouchers
       return res.status(201).json(newVoucher);
     } else {
       return res.status(403).json({
-        message: "You can not create voucher because the user doesn't exist",
+        message: "There is no user with such phone number",
       });
     }
   } catch (error) {
