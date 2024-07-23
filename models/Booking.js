@@ -9,4 +9,4 @@ const BookingSchema = new Schema({
   persons: { type: Number, required: true },
 });
 
-module.exports = mongoose.model("Booking", BookingSchema);
+module.exports = model("Booking", BookingSchema);
