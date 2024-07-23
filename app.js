@@ -12,6 +12,8 @@ const ratingRouter = require("./apis/ratings/routes");
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
+const bookingRouter = require("./apis/booking/routes");
+const chatRouter = require("./apis/chat/routes");
 // Load environment variables from .env file
 dotenv.config();
 
@@ -33,7 +35,11 @@ app.use("/api/businesses", businessRoutes);
 app.use("/vouchers", voucherRouter);
 app.use("/ratings", ratingRouter);
 
-// Error handling middleware
+//Routes here...
+app.use("/api/bookings", bookingRouter);
+app.use("/api/chats", chatRouter);
+// app.use("/api/places", placesRouter);
+
 app.use(errorHandler);
 app.use(notFoundHandler);
 
