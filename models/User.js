@@ -29,5 +29,7 @@ const UserSchema = new mongoose.Schema({
   is_verified: { type: Boolean, default: false },
 });
 
+
 const User = mongoose.model("User", UserSchema);
 module.exports = User;
+
