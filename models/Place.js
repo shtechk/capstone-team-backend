@@ -13,8 +13,15 @@ const PlaceSchema = new Schema({
   ratings: [{ type: Schema.Types.ObjectId, ref: "Rating" }],
   category: [{ type: Schema.Types.ObjectId, ref: "Category" }],
   location: {
-    type: { type: String, enum: ["Point"], required: true },
-    coordinates: { type: [Number], required: true },
+    type: {
+      type: String, // Don't do `{ location: { type: String } }`
+      enum: ["Point"], // 'location.type' must be 'Point'
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
   },
 });
 
