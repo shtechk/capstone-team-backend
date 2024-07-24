@@ -7,6 +7,7 @@ const PlaceSchema = new Schema({
   drinks: { type: String, required: true },
   service: { type: String, required: true },
   parking: { type: String, required: true },
+  timings: { type: String, required: true },
   images: { type: String, default: "link", required: true },
   bookings: [{ type: Schema.Types.ObjectId, ref: "Booking" }],
   ratings: [{ type: Schema.Types.ObjectId, ref: "Rating" }],
@@ -17,4 +18,4 @@ const PlaceSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model("Place", PlaceSchema);
+module.exports = model("Place", PlaceSchema);
