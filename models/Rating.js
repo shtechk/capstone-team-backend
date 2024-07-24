@@ -8,7 +8,7 @@ const RatingSchema = new mongoose.Schema({
   service: { type: Number },
   note: { type: String },
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  dateTime: { type: Date.UTC },
+  dateTime: { type: Date },
 });
 
 module.exports = mongoose.model("Rating", RatingSchema);

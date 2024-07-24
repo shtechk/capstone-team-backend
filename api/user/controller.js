@@ -174,7 +174,12 @@ exports.verifyEmail = async (req, res) => {
 
     await TemporaryUser.deleteOne({ email });
 
-    const token = generateToken(user._id, user.username, user.role);
+    const token = generateToken(
+      user._id,
+      user.username,
+      user.role,
+      user.phone_number
+    );
     res.status(200).json({ token });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -191,7 +196,12 @@ exports.login = async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Authentication failed" });
     }
-    const token = generateToken(user._id, user.username, user.role);
+    const token = generateToken(
+      user._id,
+      user.username,
+      user.role,
+      user.phone_number
+    );
     res.json({ token });
   } catch (error) {
     res.status(500).json({ message: error.message });
