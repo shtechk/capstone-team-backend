@@ -119,3 +119,17 @@ exports.submitBusinessUpdate = async (req, res) => {
       .json({ message: "Error submitting business update request", error });
   }
 };
+
+// Fetch all business requests
+exports.getAllBusinessRequests = async (req, res) => {
+  try {
+    const businesses = await Business.find({
+      status: { $in: ["pending_creation", "pending_update"] },
+    });
+    res.status(200).json(businesses);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching business requests", error });
+  }
+};
