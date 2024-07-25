@@ -5,14 +5,11 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/database"); // Import the database connection
 const userRoutes = require("./api/user/routes");
 const businessRoutes = require("./api/business/routes");
-const errorHandler = require("./middlewares/errorHandler"); // Assuming you have this middleware
-const notFoundHandler = require("./middlewares/notFoundHandler"); // Assuming you have this middleware
 const voucherRouter = require("./apis/vouchers/routes");
 const ratingRouter = require("./apis/ratings/routes");
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
-
 // const { localStrategy, jwtStrategy } = require("./middlewares/passport");
 // const passport = require("passport");
 const categoryRouter = require("./apis/category/routes");
@@ -40,8 +37,8 @@ app.use("/vouchers", voucherRouter);
 app.use("/ratings", ratingRouter);
 
 //Routes here...
-app.use("/apis/category", categoryRouter);
-app.use("/apis/place", placeRouter);
+app.use("/api/category", categoryRouter);
+app.use("/api/place", placeRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/chats", chatRouter);
 // app.use("/api/places", placesRouter);
