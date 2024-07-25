@@ -16,6 +16,8 @@ const categoryRouter = require("./apis/category/routes");
 const placeRouter = require("./apis/place/routes");
 const bookingRouter = require("./apis/booking/routes");
 const chatRouter = require("./apis/chat/routes");
+const errorHandler = require("./middlewares/errorHandler");
+const notFoundHandler = require("./middlewares/notFoundHandler");
 // Load environment variables from .env file
 dotenv.config();
 
