@@ -12,10 +12,9 @@ const ratingRouter = require("./apis/ratings/routes");
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
-const notFoundHandler = require("./middlewares/notFoundHandler");
-const errorHandler = require("./middlewares/errorHandler");
-const { localStrategy, jwtStrategy } = require("./middlewares/passport");
-const passport = require("passport");
+
+// const { localStrategy, jwtStrategy } = require("./middlewares/passport");
+// const passport = require("passport");
 const categoryRouter = require("./apis/category/routes");
 const placeRouter = require("./apis/place/routes");
 const bookingRouter = require("./apis/booking/routes");
@@ -46,7 +45,6 @@ app.use("/apis/place", placeRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/chats", chatRouter);
 // app.use("/api/places", placesRouter);
-
 
 app.use(errorHandler);
 app.use(notFoundHandler);
