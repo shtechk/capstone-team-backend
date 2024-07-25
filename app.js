@@ -10,9 +10,6 @@ const ratingRouter = require("./apis/ratings/routes");
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
-
-const notFoundHandler = require("./middlewares/notFoundHandler");
-const errorHandler = require("./middlewares/errorHandler");
 // const { localStrategy, jwtStrategy } = require("./middlewares/passport");
 // const passport = require("passport");
 const categoryRouter = require("./apis/category/routes");
