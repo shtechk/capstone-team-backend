@@ -47,7 +47,7 @@ app.use("/api/place", placeRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/chats", chatRouter);
 
-app.use("/apis/notification", notificationRouter);
+app.use("/api/notification", notificationRouter);
 
 // app.use("/api/places", placesRouter);
 

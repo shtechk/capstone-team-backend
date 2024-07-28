@@ -80,32 +80,30 @@ exports.register = async (req, res) => {
     await tempUser.save();
     console.log("Temporary user saved:", tempUser);
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.mailtrap.io",
-      port: 2525,
-      auth: {
-        user: process.env.MAILTRAP_USER,
-        pass: process.env.MAILTRAP_PASS,
-      },
-    });
+    // const transporter = nodemailer.createTransport({
+    //   host: "smtp.mailtrap.io",
+    //   port: 2525,
+    //   auth: {
+    //     user: process.env.MAILTRAP_USER,
+    //     pass: process.env.MAILTRAP_PASS,
+    //   },
+    // });
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Email Verification",
-      text: `Your verification code is ${verificationCode}`,
-    };
+    // const mailOptions = {
+    //   from: process.env.EMAIL_USER,
+    //   to: email,
+    //   subject: "Email Verification",
+    //   text: `Your verification code is ${verificationCode}`,
+    // };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email:", error);
-        return res
-          .status(500)
-          .json({ message: "Failed to send verification email" });
-      }
-      console.log("Email sent: " + info.response);
-      res.status(201).json({ message: "Verification code sent to email" });
-    });
+    // transporter.sendMail(mailOptions, (error, info) => {
+    //   if (error) {
+    //     console.error('Error sending email:', error);
+    //     return res.status(500).json({ message: 'Failed to send verification email' });
+    //   }
+    //   console.log("Email sent: " + info.response);
+    // });
+    res.status(201).json({ message: "Verification code sent to email" });
   } catch (error) {
     console.error("Registration error:", error);
     res.status(500).json({ message: error.message });
