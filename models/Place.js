@@ -11,6 +11,7 @@ const PlaceSchema = new Schema({
   images: { type: String, default: "link", required: true },
   bookings: [{ type: Schema.Types.ObjectId, ref: "Booking" }],
   ratings: [{ type: Schema.Types.ObjectId, ref: "Rating" }],
+
   category: [{ type: Schema.Types.ObjectId, ref: "Category" }],
   location: {
     type: {

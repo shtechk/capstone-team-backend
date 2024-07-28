@@ -3,6 +3,15 @@ const router = express.Router();
 const businessController = require("./controller");
 const { ensureAuthenticated, ensureAdmin } = require("../../middlewares/auth");
 
+// Route for fetching all business requests - should be before the parameterized route
+router.get(
+  "/requests",
+  ensureAuthenticated,
+  ensureAdmin,
+  businessController.getAllBusinessRequests
+);
+
+// Parameterized route
 router.get("/:id", businessController.getBusinessById);
 
 // Route for submitting a business registration request

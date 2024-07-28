@@ -1,10 +1,13 @@
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 const User = require("../../models/User");
 const Business = require("../../models/Business");
 const TemporaryUser = require("../../models/TemporaryUser");
 const { generateToken } = require("../../utils/jwt");
 const bcrypt = require("bcrypt");
-const nodemailer = require("nodemailer");
-const crypto = require("crypto");
+require('dotenv').config(); // Load environment variables
+
+
 
 exports.register = async (req, res) => {
   try {
@@ -24,63 +27,48 @@ exports.register = async (req, res) => {
       business_mode,
     } = req.body;
 
-    if (
-      !username ||
-      !password ||
-      !email ||
-      !first_name ||
-      !last_name ||
-      !phone_number
-    ) {
+    console.log('Registering user:', email);
+
+    if (!username || !password || !email || !first_name || !last_name || !phone_number) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const profileImage =
-      req.files && req.files.profile_image
-        ? req.files.profile_image[0].path
-        : null;
-    const businessImage =
-      req.files && req.files.business_image
-        ? req.files.business_image[0].path
-        : null;
+    const profileImage = req.files && req.files.profile_image ? req.files.profile_image[0].path : null;
+    const businessImage = req.files && req.files.business_image ? req.files.business_image[0].path : null;
 
-    const verificationCode = crypto
-      .randomBytes(3)
-      .toString("hex")
-      .toUpperCase();
+    const verificationCode = crypto.randomBytes(3).toString("hex").toUpperCase();
 
     const tempUser = new TemporaryUser({
       username,
       password: hashedPassword,
-      email,
+      email: email.toLowerCase(), // Ensure email is stored in lowercase
       first_name,
       last_name,
       phone_number,
       profile_image: profileImage,
       verification_code: verificationCode,
       isBusiness: isBusiness === "true",
-      businessDetails:
-        isBusiness === "true"
-          ? {
-              name: business_name,
-              time: business_time,
-              date: business_date,
-              location: business_location,
-              description: business_description,
-              image: businessImage,
-              mode: business_mode,
-            }
-          : null,
+      businessDetails: isBusiness === "true" ? {
+        name: business_name,
+        time: business_time,
+        date: business_date,
+        location: business_location,
+        description: business_description,
+        image: businessImage,
+        mode: business_mode,
+      } : null,
     });
 
     await tempUser.save();
+    console.log('Temporary user saved:', tempUser);
 
     const transporter = nodemailer.createTransport({
-      service: "Outlook365",
+      host: "smtp.mailtrap.io",
+      port: 2525,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.MAILTRAP_USER,
+        pass: process.env.MAILTRAP_PASS,
       },
     });
 
@@ -93,25 +81,33 @@ exports.register = async (req, res) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        return console.log(error);
+        console.error('Error sending email:', error);
+        return res.status(500).json({ message: 'Failed to send verification email' });
       }
       console.log("Email sent: " + info.response);
+      res.status(201).json({ message: "Verification code sent to email" });
     });
 
-    res.status(201).json({ message: "Verification code sent to email" });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 exports.verifyEmail = async (req, res) => {
   try {
     const { email, verification_code } = req.body;
 
-    const tempUser = await TemporaryUser.findOne({ email });
+    console.log('Verifying email:', email);
+
+    const tempUser = await TemporaryUser.findOne({ email: email.toLowerCase() });
     if (!tempUser) {
+      console.log('User not found for email:', email);
       return res.status(404).json({ message: "User not found" });
     }
+
+    console.log('Found temporary user:', tempUser);
 
     if (tempUser.verification_code !== verification_code) {
       return res.status(400).json({ message: "Invalid verification code" });
@@ -133,6 +129,7 @@ exports.verifyEmail = async (req, res) => {
     });
 
     await user.save();
+    console.log('User saved:', user);
 
     if (tempUser.isBusiness) {
       const business = new Business({
@@ -148,12 +145,14 @@ exports.verifyEmail = async (req, res) => {
       });
 
       await business.save();
+      console.log('Business saved:', business);
 
       const transporter = nodemailer.createTransport({
-        service: "Outlook365",
+        host: "smtp.mailtrap.io",
+        port: 2525,
         auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
+          user: process.env.MAILTRAP_USER,
+          pass: process.env.MAILTRAP_PASS,
         },
       });
 
@@ -166,24 +165,25 @@ exports.verifyEmail = async (req, res) => {
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          return console.log(error);
+          console.error('Error sending email:', error);
+        } else {
+          console.log("Email sent: " + info.response);
         }
-        console.log("Email sent: " + info.response);
       });
     }
 
-    await TemporaryUser.deleteOne({ email });
+    await TemporaryUser.deleteOne({ email: email.toLowerCase() });
+    console.log('Temporary user deleted:', email);
 
     const token = generateToken(user._id, user.username, user.role);
     res.status(200).json({ token });
   } catch (error) {
+    console.error('Verification error:', error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Other existing functions...
 
-// Login user
 exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -194,19 +194,17 @@ exports.login = async (req, res) => {
     const token = generateToken(user._id, user.username, user.role);
     res.json({ token });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Update user
 exports.updateUser = async (req, res) => {
   const { username } = req.body;
   const image = req.file ? req.file.path : null;
 
   if (req.user.id !== req.params.id.toString()) {
-    return res
-      .status(401)
-      .json({ message: "Unauthorized to update this user" });
+    return res.status(401).json({ message: "Unauthorized to update this user" });
   }
 
   try {
@@ -215,33 +213,28 @@ exports.updateUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     if (username) user.username = username;
-    if (image) user.profile_image = image; // Ensure the image field is updated correctly
+    if (image) user.profile_image = image;
     await user.save();
     res.json({
       user: {
         username: user.username,
-        image: user.profile_image, // Return the updated image
+        image: user.profile_image,
         id: user._id,
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error('Update user error:', error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Approve or reject business registration
 exports.approveBusiness = async (req, res) => {
   try {
     const { status, rejection_reason } = req.body;
-    const business = await Business.findById(req.params.id).populate(
-      "owner_id"
-    );
+    const business = await Business.findById(req.params.id).populate("owner_id");
 
     if (!business) {
-      return res
-        .status(404)
-        .json({ message: "Business registration not found" });
+      return res.status(404).json({ message: "Business registration not found" });
     }
 
     const user = business.owner_id;
@@ -254,12 +247,12 @@ exports.approveBusiness = async (req, res) => {
       business.rejection_reason = rejection_reason;
       user.status = "rejected";
 
-      // Send rejection email to business user
       const transporter = nodemailer.createTransport({
-        service: "Outlook365",
+        host: "smtp.mailtrap.io",
+        port: 2525,
         auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
+          user: process.env.MAILTRAP_USER,
+          pass: process.env.MAILTRAP_PASS,
         },
       });
 
@@ -272,18 +265,18 @@ exports.approveBusiness = async (req, res) => {
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          return console.log(error);
+          console.error('Error sending email:', error);
+        } else {
+          console.log("Email sent: " + info.response);
         }
-        console.log("Email sent: " + info.response);
       });
     }
 
     await business.save();
     await user.save();
-    res
-      .status(200)
-      .json({ message: `Business registration ${status} successfully` });
+    res.status(200).json({ message: `Business registration ${status} successfully` });
   } catch (error) {
+    console.error('Approve business error:', error);
     res.status(500).json({ message: error.message });
   }
 };
