@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema({
     enum: ["active", "pending", "rejected"],
     default: "active",
   }, // User's status
-  business: [{ type: Schema.Types.ObjectId, ref: "Business" }], // References to businesses owned by the user
+  place: [{ type: Schema.Types.ObjectId, ref: "Business" }], // References to businesses owned by the user
   booking: [{ type: Schema.Types.ObjectId, ref: "Booking" }], // References to bookings made by the user
   notification: [{ type: Schema.Types.ObjectId, ref: "Notification" }], // References to notifications received by the user
   voucher: [{ type: Schema.Types.ObjectId, ref: "Voucher" }], // References to vouchers sent/received by the user
@@ -29,7 +29,5 @@ const UserSchema = new mongoose.Schema({
   is_verified: { type: Boolean, default: false },
 });
 
-
 const User = mongoose.model("User", UserSchema);
 module.exports = User;
-
