@@ -10,29 +10,30 @@ const ratingRouter = require("./apis/ratings/routes");
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
+const notFoundHandler = require("./middlewares/notFoundHandler");
+const errorHandler = require("./middlewares/errorHandler");
 // const { localStrategy, jwtStrategy } = require("./middlewares/passport");
-// const passport = require("passport");
 const categoryRouter = require("./apis/category/routes");
 const placeRouter = require("./apis/place/routes");
 const bookingRouter = require("./apis/booking/routes");
 const chatRouter = require("./apis/chat/routes");
-const errorHandler = require("./middlewares/errorHandler");
-const notFoundHandler = require("./middlewares/notFoundHandler");
+
+const notificationRouter = require("./apis/notification/routes");
+
+const app = express();
+
 // Load environment variables from .env file
 dotenv.config();
 
 // Connect to the database
 connectDB();
 
-const app = express();
 app.use(express.json());
 app.use("/media", express.static(path.join(__dirname, "media")));
-
+app.use(cors());
+app.use(morgan("dev"));
 // Initialize Passport.js
 app.use(passport.initialize());
-
-app.use(morgan("dev"));
-app.use(cors());
 
 // Register routes
 app.use("/api/users", userRoutes);
@@ -45,6 +46,9 @@ app.use("/api/category", categoryRouter);
 app.use("/api/place", placeRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/chats", chatRouter);
+
+app.use("/apis/notification", notificationRouter);
+
 // app.use("/api/places", placesRouter);
 
 app.use(errorHandler);
