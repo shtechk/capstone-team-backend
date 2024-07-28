@@ -1,5 +1,14 @@
 const Place = require("../../models/Place");
 
+const getOnePlace = async (req, res, next) => {
+  try {
+    const place = await Place.findById(req.params._id);
+    res.json(place);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getAllPlaces = async (req, res, next) => {
   try {
     const places = await Place.find();
@@ -33,8 +42,9 @@ const deletePlace = async (req, res, next) => {
 // endpoint for search
 const searchPlaces = async (req, res, next) => {
   try {
-    console.log(req.query);
+    console.log("======>", req.query);
     const searchTerm = req.query.search;
+
     const places = await Place.find({
       $or: [
         { name: new RegExp(searchTerm, "i") },
@@ -50,4 +60,10 @@ const searchPlaces = async (req, res, next) => {
     next(error);
   }
 };
-module.exports = { getAllPlaces, createNewPlace, deletePlace, searchPlaces };
+module.exports = {
+  getOnePlace,
+  getAllPlaces,
+  createNewPlace,
+  deletePlace,
+  searchPlaces,
+};

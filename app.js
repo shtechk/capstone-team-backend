@@ -38,8 +38,8 @@ app.use(passport.initialize());
 // Register routes
 app.use("/api/users", userRoutes);
 app.use("/api/businesses", businessRoutes);
-app.use("/vouchers", voucherRouter);
-app.use("/ratings", ratingRouter);
+app.use("/api/vouchers", voucherRouter);
+app.use("/api/ratings", ratingRouter);
 
 //Routes here...
 app.use("/api/category", categoryRouter);
@@ -47,7 +47,7 @@ app.use("/api/place", placeRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/chats", chatRouter);
 
-app.use("/apis/notification", notificationRouter);
+app.use("/api/notification", notificationRouter);
 
 // app.use("/api/places", placesRouter);
 

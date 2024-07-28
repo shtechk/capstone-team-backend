@@ -13,6 +13,7 @@ const PlaceSchema = new Schema({
   ratings: [{ type: Schema.Types.ObjectId, ref: "Rating" }],
 
   category: [{ type: Schema.Types.ObjectId, ref: "Category" }],
+  chats: [{ type: Schema.Types.ObjectId, ref: "Chat" }],
   location: {
     type: {
       type: String, // Don't do `{ location: { type: String } }`
