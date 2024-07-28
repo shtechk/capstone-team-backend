@@ -2,7 +2,7 @@ const Place = require("../../models/Place");
 
 const getOnePlace = async (req, res, next) => {
   try {
-    const place = await Place.findById(req.params.id);
+    const place = await Place.findById(req.params._id);
     res.json(place);
   } catch (error) {
     next(error);
@@ -42,8 +42,9 @@ const deletePlace = async (req, res, next) => {
 // endpoint for search
 const searchPlaces = async (req, res, next) => {
   try {
-    console.log(req.query);
+    console.log("======>", req.query);
     const searchTerm = req.query.search;
+
     const places = await Place.find({
       $or: [
         { name: new RegExp(searchTerm, "i") },
