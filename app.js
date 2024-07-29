@@ -16,7 +16,7 @@ const errorHandler = require("./middlewares/errorHandler");
 // const passport = require("passport");
 const categoryRouter = require("./apis/category/routes");
 const placeRouter = require("./apis/place/routes");
-const bookingRouter = require("./apis/booking/routes");
+const bookingRouter = require("./api/booking/routes");
 const chatRouter = require("./apis/chat/routes");
 // Load environment variables from .env file
 dotenv.config();
@@ -27,10 +27,14 @@ connectDB();
 const app = express();
 app.use(express.json());
 
+app.use(cors());
+
 // Initialize Passport.js
 app.use(passport.initialize());
 
 app.use(morgan("dev"));
+
+app.use("/media", express.static(path.join(__dirname, "media")));
 
 // Register routes
 app.use("/api/users", userRoutes);
@@ -43,8 +47,8 @@ app.use("/api/category", categoryRouter);
 app.use("/api/place", placeRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/chats", chatRouter);
-// app.use("/api/places", placesRouter);
 
+// app.use("/api/places", placesRouter);
 
 app.use(errorHandler);
 app.use(notFoundHandler);
