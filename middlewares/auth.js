@@ -7,6 +7,7 @@ const ensureAuthenticated = (req, res, next) => {
     if (req.user) {
       next();
     } else {
+      console.log("ITS THIS");
       res.status(401).json({ message: "Unauthorized" });
     }
   });
