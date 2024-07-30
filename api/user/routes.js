@@ -26,5 +26,5 @@ router.put(
 
 // Admin route for approving or rejecting business registrations
 router.put("/approve/:id", ensureAuthenticated, userController.approveBusiness);
-
+router.get("/", userController.getAllUsers);
 module.exports = router;
