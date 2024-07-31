@@ -15,7 +15,7 @@ const errorHandler = require("./middlewares/errorHandler");
 // const { localStrategy, jwtStrategy } = require("./middlewares/passport");
 const categoryRouter = require("./apis/category/routes");
 const placeRouter = require("./apis/place/routes");
-const bookingRouter = require("./api/booking/routes");
+const bookingRouter = require("./apis/booking/routes");
 const chatRouter = require("./apis/chat/routes");
 
 const notificationRouter = require("./apis/notification/routes");
