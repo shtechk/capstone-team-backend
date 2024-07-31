@@ -2,15 +2,16 @@ const passport = require("../config/passport"); // Ensure the path is correct ba
 
 const auth = passport.authenticate("jwt", { session: false });
 
-const ensureAuthenticated = (req, res, next) => {
-  auth(req, res, () => {
-    if (req.user) {
-      next();
-    } else {
-      res.status(401).json({ message: "Unauthorized" });
-    }
-  });
-};
+// const ensureAuthenticated = (req, res, next) => {
+//   auth(req, res, () => {
+//     if (req.user) {
+//       next();
+//     } else {
+//       console.log("ITS THIS");
+//       res.status(401).json({ message: "Unauthorized" });
+//     }
+//   });
+// };
 
 const ensureAdmin = (req, res, next) => {
   auth(req, res, () => {
@@ -22,7 +23,29 @@ const ensureAdmin = (req, res, next) => {
   });
 };
 
+const ensureAuthenticated = (req, res, next) => {
+  auth(req, res, () => {
+    if (req.user) {
+      next();
+    } else {
+      res.status(401).json({ message: "Unauthorized" });
+    }
+  });
+};
+
+const ensureBusiness = (req, res, next) => {
+  auth(req, res, () => {
+    if (req.user && req.user.role === "business") {
+      next();
+    } else {
+      console.log(`User role: ${req.user.role}`);
+      res.status(403).json({ message: "Forbidden" });
+    }
+  });
+};
+
 module.exports = {
   ensureAuthenticated,
   ensureAdmin,
+  ensureBusiness,
 };
