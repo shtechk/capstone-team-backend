@@ -1,5 +1,4 @@
-const passport = require("passport");
-require("../config/passport"); // Ensure the path is correct based on your project structure
+const passport = require("../config/passport"); // Ensure the path is correct based on your project structure
 
 const auth = passport.authenticate("jwt", { session: false });
 

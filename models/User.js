@@ -10,6 +10,7 @@ const UserSchema = new mongoose.Schema({
   profile_image: { type: String }, // URL to the user's profile image
   role: { type: String, enum: ["admin", "user", "business"], required: true }, // User's role (admin, user, or business)
   phone_number: { type: String, required: true, unique: true }, // User's phone number
+  notification_token: { type: String },
   status: {
     type: String,
     enum: ["active", "pending", "rejected"],
@@ -29,7 +30,5 @@ const UserSchema = new mongoose.Schema({
   is_verified: { type: Boolean, default: false },
 });
 
-
 const User = mongoose.model("User", UserSchema);
 module.exports = User;
-

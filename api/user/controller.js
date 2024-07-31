@@ -5,10 +5,10 @@ const User = require("../../models/User");
 const Business = require("../../models/Business");
 const TemporaryUser = require("../../models/TemporaryUser");
 const { generateToken } = require("../../utils/jwt");
-const { nextTick } = require("process");
+const bcrypt = require("bcrypt");
 require("dotenv").config(); // Load environment variables
 
-exports.register = async (req, res, next) => {
+exports.register = async (req, res) => {
   try {
     const {
       username,
@@ -25,6 +25,8 @@ exports.register = async (req, res, next) => {
       business_description,
       business_mode,
     } = req.body;
+
+    console.log("Registering user:", email);
 
     if (
       !username ||
@@ -77,33 +79,35 @@ exports.register = async (req, res, next) => {
     });
 
     await tempUser.save();
+    console.log("Temporary user saved:", tempUser);
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.mailtrap.io",
-      port: 2525,
-      auth: {
-        user: process.env.MAILTRAP_USER,
-        pass: process.env.MAILTRAP_PASS,
-      },
-    });
+    // const transporter = nodemailer.createTransport({
+    //   host: "smtp.mailtrap.io",
+    //   port: 2525,
+    //   auth: {
+    //     user: process.env.MAILTRAP_USER,
+    //     pass: process.env.MAILTRAP_PASS,
+    //   },
+    // });
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Email Verification",
-      text: `Your verification code is ${verificationCode}`,
-    };
+    // const mailOptions = {
+    //   from: process.env.EMAIL_USER,
+    //   to: email,
+    //   subject: "Email Verification",
+    //   text: `Your verification code is ${verificationCode}`,
+    // };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return res
-          .status(500)
-          .json({ message: "Failed to send verification email" });
-      }
-      res.status(201).json({ message: "Verification code sent to email" });
-    });
+    // transporter.sendMail(mailOptions, (error, info) => {
+    //   if (error) {
+    //     console.error('Error sending email:', error);
+    //     return res.status(500).json({ message: 'Failed to send verification email' });
+    //   }
+    //   console.log("Email sent: " + info.response);
+    // });
+    res.status(201).json({ message: "Verification code sent to email" });
   } catch (error) {
-    next(error);
+    console.error("Registration error:", error);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -111,12 +115,17 @@ exports.verifyEmail = async (req, res) => {
   try {
     const { email, verification_code } = req.body;
 
+    console.log("Verifying email:", email);
+
     const tempUser = await TemporaryUser.findOne({
       email: email.toLowerCase(),
     });
     if (!tempUser) {
+      console.log("User not found for email:", email);
       return res.status(404).json({ message: "User not found" });
     }
+
+    console.log("Found temporary user:", tempUser);
 
     if (tempUser.verification_code !== verification_code) {
       return res.status(400).json({ message: "Invalid verification code" });
@@ -138,6 +147,7 @@ exports.verifyEmail = async (req, res) => {
     });
 
     await user.save();
+    console.log("User saved:", user);
 
     if (tempUser.isBusiness) {
       const business = new Business({
@@ -153,6 +163,7 @@ exports.verifyEmail = async (req, res) => {
       });
 
       await business.save();
+      console.log("Business saved:", business);
 
       const transporter = nodemailer.createTransport({
         host: "smtp.mailtrap.io",
@@ -173,15 +184,19 @@ exports.verifyEmail = async (req, res) => {
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.error("Error sending email:", error);
+        } else {
+          console.log("Email sent: " + info.response);
         }
       });
     }
 
     await TemporaryUser.deleteOne({ email: email.toLowerCase() });
+    console.log("Temporary user deleted:", email);
 
     const token = generateToken(user._id, user.username, user.role);
     res.status(200).json({ token });
   } catch (error) {
+    console.error("Verification error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -207,6 +222,7 @@ exports.login = async (req, res) => {
     const token = generateToken(user._id, user.username, user.role);
     res.json({ token });
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -237,6 +253,7 @@ exports.updateUser = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Update user error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -283,6 +300,8 @@ exports.approveBusiness = async (req, res) => {
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.error("Error sending email:", error);
+        } else {
+          console.log("Email sent: " + info.response);
         }
       });
     }
@@ -293,10 +312,10 @@ exports.approveBusiness = async (req, res) => {
       .status(200)
       .json({ message: `Business registration ${status} successfully` });
   } catch (error) {
+    console.error("Approve business error:", error);
     res.status(500).json({ message: error.message });
   }
 };
-
 exports.getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -306,5 +325,14 @@ exports.getUserProfile = async (req, res) => {
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find();
+    return res.status(200).json(users);
+  } catch (error) {
+    next(error);
   }
 };
