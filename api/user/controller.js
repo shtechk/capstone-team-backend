@@ -5,7 +5,6 @@ const User = require("../../models/User");
 const Business = require("../../models/Business");
 const TemporaryUser = require("../../models/TemporaryUser");
 const { generateToken } = require("../../utils/jwt");
-const bcrypt = require("bcrypt");
 require("dotenv").config(); // Load environment variables
 
 exports.register = async (req, res) => {

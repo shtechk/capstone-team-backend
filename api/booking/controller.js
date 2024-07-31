@@ -5,11 +5,12 @@ const Business = require("../../models/Business");
 exports.createBooking = async (req, res) => {
   try {
     const { place, date, specialInstructions, persons } = req.body;
-    const business = await Business.findById(place);
 
-    if (!business) {
-      return res.status(404).json({ message: "Business not found" });
-    }
+    // const business = await Business.findById(place);
+
+    // if (!business) {
+    //   return res.status(403).json({ message: "Business not found" });
+    // }
 
     const booking = new Booking({
       place,
@@ -23,6 +24,7 @@ exports.createBooking = async (req, res) => {
     await booking.save();
     res.status(201).json({ message: "Booking created successfully", booking });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
