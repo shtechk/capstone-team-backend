@@ -7,6 +7,7 @@ const {
   getOnePlace,
 } = require("./controller");
 const upload = require("../../middlewares/multer");
+const { ensureAuthenticated } = require("../../middlewares/auth");
 const placeRouter = express.Router();
 
 placeRouter.get("/search", searchPlaces);

@@ -2,6 +2,17 @@ const passport = require("../config/passport"); // Ensure the path is correct ba
 
 const auth = passport.authenticate("jwt", { session: false });
 
+// const ensureAuthenticated = (req, res, next) => {
+//   auth(req, res, () => {
+//     if (req.user) {
+//       next();
+//     } else {
+//       console.log("ITS THIS");
+//       res.status(401).json({ message: "Unauthorized" });
+//     }
+//   });
+// };
+
 const ensureAdmin = (req, res, next) => {
   auth(req, res, () => {
     if (req.user && req.user.role === "admin") {

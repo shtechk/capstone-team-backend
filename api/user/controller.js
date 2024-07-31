@@ -205,8 +205,9 @@ exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
+
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: "Authentication failed" });
+      return res.status(402).json({ message: "Authentication failed" });
     }
 
     if (user.role === "business") {
