@@ -10,12 +10,13 @@ const UserSchema = new mongoose.Schema({
   profile_image: { type: String }, // URL to the user's profile image
   role: { type: String, enum: ["admin", "user", "business"], required: true }, // User's role (admin, user, or business)
   phone_number: { type: String, required: true, unique: true }, // User's phone number
+  notification_token: { type: String },
   status: {
     type: String,
     enum: ["active", "pending", "rejected"],
     default: "active",
   }, // User's status
-  place: [{ type: Schema.Types.ObjectId, ref: "Business" }], // References to businesses owned by the user
+  business: [{ type: Schema.Types.ObjectId, ref: "Business" }], // References to businesses owned by the user
   booking: [{ type: Schema.Types.ObjectId, ref: "Booking" }], // References to bookings made by the user
   notification: [{ type: Schema.Types.ObjectId, ref: "Notification" }], // References to notifications received by the user
   voucher: [{ type: Schema.Types.ObjectId, ref: "Voucher" }], // References to vouchers sent/received by the user

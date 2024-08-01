@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const businessController = require("./controller");
-const { ensureAuthenticated, ensureAdmin } = require("../../middlewares/auth");
+const {
+  ensureAuthenticated,
+  ensureAdmin,
+  ensureBusiness,
+} = require("../../middlewares/auth");
 
 // Route for fetching all business requests - should be before the parameterized route
 router.get(
@@ -12,12 +16,14 @@ router.get(
 );
 
 // Parameterized route
+router.get("/", ensureAuthenticated, businessController.getMyBusiness);
 router.get("/:id", businessController.getBusinessById);
 
 // Route for submitting a business registration request
 router.post(
   "/register",
   ensureAuthenticated,
+  ensureBusiness,
   businessController.submitBusinessRegistration
 );
 
@@ -33,6 +39,7 @@ router.put(
 router.put(
   "/update/:id",
   ensureAuthenticated,
+  ensureBusiness,
   businessController.submitBusinessUpdate
 );
 

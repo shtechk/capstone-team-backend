@@ -1,10 +1,10 @@
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 const User = require("../../models/User");
 const Business = require("../../models/Business");
 const TemporaryUser = require("../../models/TemporaryUser");
 const { generateToken } = require("../../utils/jwt");
-const bcrypt = require("bcrypt");
 require("dotenv").config(); // Load environment variables
 
 exports.register = async (req, res) => {
@@ -56,7 +56,7 @@ exports.register = async (req, res) => {
     const tempUser = new TemporaryUser({
       username,
       password: hashedPassword,
-      email: email.toLowerCase(), // Ensure email is stored in lowercase
+      email: email.toLowerCase(),
       first_name,
       last_name,
       phone_number,
@@ -204,9 +204,21 @@ exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
+
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: "Authentication failed" });
+      return res.status(402).json({ message: "Authentication failed" });
     }
+
+    if (user.role === "business") {
+      const business = await Business.findOne({ owner_id: user._id });
+
+      if (business && business.status === "pending_creation") {
+        return res.status(403).json({
+          message: "Your business registration request is still under review.",
+        });
+      }
+    }
+
     const token = generateToken(user._id, user.username, user.role);
     res.json({ token });
   } catch (error) {
@@ -302,5 +314,25 @@ exports.approveBusiness = async (req, res) => {
   } catch (error) {
     console.error("Approve business error:", error);
     res.status(500).json({ message: error.message });
+  }
+};
+exports.getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find();
+    return res.status(200).json(users);
+  } catch (error) {
+    next(error);
   }
 };
