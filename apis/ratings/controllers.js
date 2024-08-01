@@ -22,8 +22,10 @@ const getAllRatings = async (req, res, next) => {
 
 const addRating = async (req, res, next) => {
   try {
-    userId = req.user.id;
-
+    console.log(req.body);
+    const userId = req.user.id;
+    req.body.user = req.user._id;
+    req.body.place = req.body.placeId;
     const newRating = await Rating.create(req.body);
     await Place.findByIdAndUpdate(req.body.place, {
       $push: { ratings: newRating },
