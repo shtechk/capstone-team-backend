@@ -9,8 +9,15 @@ const Voucher = require("../../models/Voucher");
 const getAllVouchers = async (req, res, next) => {
   //jwt strategy on route
   try {
-    const user = await User.findById(req.user._id).populate("voucher"); // check if true
+    const user = await User.findById(req.user._id).populate({
+      path: "voucher",
+      populate: {
+        path: "user",
+        model: "User",
+      },
+    }); // check if true
     // const vouchers = await Voucher.find({ phoneNumber: user.phoneNumber }); //if token have phone number i only have to use req.user.phoneNumber and no need for const ABOVE!!!!!
+    console.log(user.voucher);
     return res.status(200).json(user.voucher);
   } catch (error) {
     next(error);
@@ -42,16 +49,14 @@ const createVoucher = async (req, res, next) => {
     const userReciever = await User.findOne({
       phone_number: req.body.phone_number,
     });
-
     console.log("userReciver", userReciever);
-    const userSender = await User.findOne({
-      phone_number: req.user.phone_number,
-    }); //check with shahad phoneNumber regarding feild
+    const userSender = req.user._id;
 
     console.log("userSender", userSender);
-    const senderID = userSender._id;
+    const senderID = userSender;
     const recieverID = userReciever._id;
     console.log(senderID);
+    req.body.user = senderID;
     if (senderID.toString() !== recieverID.toString()) {
       const newVoucher = await Voucher.create(req.body);
       // await Place.findByIdAndUpdate(req.body.place, {
