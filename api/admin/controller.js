@@ -1,5 +1,5 @@
 const User = require("../../models/User");
-const Business = require("../../models/Business");
+const Place = require("../../models/Place");
 
 // Fetch all users
 exports.getAllUsers = async (req, res) => {
@@ -11,11 +11,11 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// Fetch all businesses
-exports.getAllBusinesses = async (req, res) => {
+// Fetch all places
+exports.getAllPlaces = async (req, res) => {
   try {
-    const businesses = await Business.find({});
-    res.json(businesses);
+    const places = await Place.find({});
+    res.json(places);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

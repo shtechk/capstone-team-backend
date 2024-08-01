@@ -1,3 +1,4 @@
+// api/booking/routes.js
 const express = require("express");
 const router = express.Router();
 const bookingController = require("./controller");
@@ -12,12 +13,12 @@ router.post("/", ensureAuthenticated, bookingController.createBooking);
 // Route for fetching user bookings
 router.get("/user", ensureAuthenticated, bookingController.getUserBookings);
 
-// Route for fetching bookings for a business
+// Route for fetching bookings for a place
 router.get(
-  "/business",
+  "/place",
   ensureAuthenticated,
   ensureBusiness,
-  bookingController.getBusinessBookings
+  bookingController.getPlaceBookings
 );
 
 // Route for updating booking status

@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const User = require("../../models/User");
-const Business = require("../../models/Business");
+const Place = require("../../models/Place");
 const TemporaryUser = require("../../models/TemporaryUser");
 const { generateToken } = require("../../utils/jwt");
 require("dotenv").config(); // Load environment variables
@@ -23,6 +23,14 @@ exports.register = async (req, res) => {
       business_location,
       business_description,
       business_mode,
+      business_mood,
+      business_food,
+      business_drinks,
+      business_service,
+      business_parking,
+      business_timings,
+      location_type,
+      location_coordinates,
     } = req.body;
 
     console.log("Registering user:", email);
@@ -73,6 +81,14 @@ exports.register = async (req, res) => {
               description: business_description,
               image: businessImage,
               mode: business_mode,
+              mood: business_mood,
+              food: business_food,
+              drinks: business_drinks,
+              service: business_service,
+              parking: business_parking,
+              timings: business_timings,
+              location_type,
+              location_coordinates,
             }
           : null,
     });
@@ -80,35 +96,127 @@ exports.register = async (req, res) => {
     await tempUser.save();
     console.log("Temporary user saved:", tempUser);
 
-    // const transporter = nodemailer.createTransport({
-    //   host: "smtp.mailtrap.io",
-    //   port: 2525,
-    //   auth: {
-    //     user: process.env.MAILTRAP_USER,
-    //     pass: process.env.MAILTRAP_PASS,
-    //   },
-    // });
-
-    // const mailOptions = {
-    //   from: process.env.EMAIL_USER,
-    //   to: email,
-    //   subject: "Email Verification",
-    //   text: `Your verification code is ${verificationCode}`,
-    // };
-
-    // transporter.sendMail(mailOptions, (error, info) => {
-    //   if (error) {
-    //     console.error('Error sending email:', error);
-    //     return res.status(500).json({ message: 'Failed to send verification email' });
-    //   }
-    //   console.log("Email sent: " + info.response);
-    // });
     res.status(201).json({ message: "Verification code sent to email" });
   } catch (error) {
     console.error("Registration error:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
+// exports.register = async (req, res) => {
+//   try {
+//     const {
+//       username,
+//       password,
+//       email,
+//       first_name,
+//       last_name,
+//       phone_number,
+//       isBusiness,
+//       business_name,
+//       business_time,
+//       business_date,
+//       business_location,
+//       business_description,
+//       business_mode,
+//       business_mood,
+//       business_food,
+//       business_drinks,
+//       business_service,
+//       business_parking,
+//       business_timings,
+//     } = req.body;
+
+//     console.log("Registering user:", email);
+
+//     if (
+//       !username ||
+//       !password ||
+//       !email ||
+//       !first_name ||
+//       !last_name ||
+//       !phone_number
+//     ) {
+//       return res.status(400).json({ message: "All fields are required" });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     const profileImage =
+//       req.files && req.files.profile_image
+//         ? req.files.profile_image[0].path
+//         : null;
+//     const businessImage =
+//       req.files && req.files.business_image
+//         ? req.files.business_image[0].path
+//         : null;
+
+//     const verificationCode = crypto
+//       .randomBytes(3)
+//       .toString("hex")
+//       .toUpperCase();
+
+//     const tempUser = new TemporaryUser({
+//       username,
+//       password: hashedPassword,
+//       email: email.toLowerCase(),
+//       first_name,
+//       last_name,
+//       phone_number,
+//       profile_image: profileImage,
+//       verification_code: verificationCode,
+//       isBusiness: isBusiness === "true",
+//       businessDetails:
+//         isBusiness === "true"
+//           ? {
+//               name: business_name,
+//               time: business_time,
+//               date: business_date,
+//               location: business_location,
+//               description: business_description,
+//               image: businessImage,
+//               mode: business_mode,
+//               mood: business_mood,
+//               food: business_food,
+//               drinks: business_drinks,
+//               service: business_service,
+//               parking: business_parking,
+//               timings: business_timings,
+//             }
+//           : null,
+//     });
+
+//     await tempUser.save();
+//     console.log("Temporary user saved:", tempUser);
+
+//     // const transporter = nodemailer.createTransport({
+//     //   host: "smtp.mailtrap.io",
+//     //   port: 2525,
+//     //   auth: {
+//     //     user: process.env.MAILTRAP_USER,
+//     //     pass: process.env.MAILTRAP_PASS,
+//     //   },
+//     // });
+
+//     // const mailOptions = {
+//     //   from: process.env.EMAIL_USER,
+//     //   to: email,
+//     //   subject: "Email Verification",
+//     //   text: `Your verification code is ${verificationCode}`,
+//     // };
+
+//     // transporter.sendMail(mailOptions, (error, info) => {
+//     //   if (error) {
+//     //     console.error('Error sending email:', error);
+//     //     return res.status(500).json({ message: 'Failed to send verification email' });
+//     //   }
+//     //   console.log("Email sent: " + info.response);
+//     // });
+//     res.status(201).json({ message: "Verification code sent to email" });
+//   } catch (error) {
+//     console.error("Registration error:", error);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 exports.verifyEmail = async (req, res) => {
   try {
@@ -149,7 +257,24 @@ exports.verifyEmail = async (req, res) => {
     console.log("User saved:", user);
 
     if (tempUser.isBusiness) {
-      const business = new Business({
+      console.log("businessDetails:", tempUser.businessDetails);
+      console.log(
+        "Raw location_coordinates:",
+        tempUser.businessDetails.location_coordinates
+      );
+
+      let coordinates;
+      try {
+        coordinates = JSON.parse(tempUser.businessDetails.location_coordinates);
+        console.log("Parsed coordinates:", coordinates);
+      } catch (parseError) {
+        console.error("Error parsing location_coordinates:", parseError);
+        return res
+          .status(400)
+          .json({ message: "Invalid location coordinates" });
+      }
+
+      const place = new Place({
         owner_id: user._id,
         name: tempUser.businessDetails.name,
         time: tempUser.businessDetails.time,
@@ -159,10 +284,20 @@ exports.verifyEmail = async (req, res) => {
         image: tempUser.businessDetails.image,
         mode: tempUser.businessDetails.mode,
         status: "pending_creation",
+        mood: tempUser.businessDetails.mood,
+        food: tempUser.businessDetails.food,
+        drinks: tempUser.businessDetails.drinks,
+        service: tempUser.businessDetails.service,
+        parking: tempUser.businessDetails.parking,
+        timings: tempUser.businessDetails.timings,
+        location: {
+          type: tempUser.businessDetails.location_type,
+          coordinates: coordinates,
+        },
       });
 
-      await business.save();
-      console.log("Business saved:", business);
+      await place.save();
+      console.log("Place saved:", place);
 
       const transporter = nodemailer.createTransport({
         host: "smtp.mailtrap.io",
@@ -210,11 +345,11 @@ exports.login = async (req, res) => {
     }
 
     if (user.role === "business") {
-      const business = await Business.findOne({ owner_id: user._id });
+      const place = await Place.findOne({ owner_id: user._id });
 
-      if (business && business.status === "pending_creation") {
+      if (place && place.status === "pending_creation") {
         return res.status(403).json({
-          message: "Your business registration request is still under review.",
+          message: "Your place registration request is still under review.",
         });
       }
     }
@@ -258,27 +393,23 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-exports.approveBusiness = async (req, res) => {
+exports.approvePlace = async (req, res) => {
   try {
     const { status, rejection_reason } = req.body;
-    const business = await Business.findById(req.params.id).populate(
-      "owner_id"
-    );
+    const place = await Place.findById(req.params.id).populate("owner_id");
 
-    if (!business) {
-      return res
-        .status(404)
-        .json({ message: "Business registration not found" });
+    if (!place) {
+      return res.status(404).json({ message: "Place registration not found" });
     }
 
-    const user = business.owner_id;
+    const user = place.owner_id;
 
     if (status === "approved") {
-      business.status = "active";
+      place.status = "active";
       user.status = "active";
     } else if (status === "rejected") {
-      business.status = "rejected_creation";
-      business.rejection_reason = rejection_reason;
+      place.status = "rejected_creation";
+      place.rejection_reason = rejection_reason;
       user.status = "rejected";
 
       const transporter = nodemailer.createTransport({
@@ -293,8 +424,8 @@ exports.approveBusiness = async (req, res) => {
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: user.email,
-        subject: "Business Registration Rejected",
-        text: `Your business registration request has been rejected. Reason: ${rejection_reason}`,
+        subject: "Place Registration Rejected",
+        text: `Your place registration request has been rejected. Reason: ${rejection_reason}`,
       };
 
       transporter.sendMail(mailOptions, (error, info) => {
@@ -306,16 +437,17 @@ exports.approveBusiness = async (req, res) => {
       });
     }
 
-    await business.save();
+    await place.save();
     await user.save();
     res
       .status(200)
-      .json({ message: `Business registration ${status} successfully` });
+      .json({ message: `Place registration ${status} successfully` });
   } catch (error) {
-    console.error("Approve business error:", error);
+    console.error("Approve place error:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);

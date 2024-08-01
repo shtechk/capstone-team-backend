@@ -1,7 +1,9 @@
-const notFounndHandler = (req, res, next) => {
-  const err = new Error("Not Found");
-  err.status = 404;
-  next(err);
+// middlewares/notFoundHandler.js
+module.exports = (req, res, next) => {
+  res.status(404);
+  res.json({
+    error: {
+      message: "Not Found",
+    },
+  });
 };
-
-module.exports = notFounndHandler;

@@ -11,12 +11,12 @@ router.get(
   adminController.getAllUsers
 );
 
-// Business management
+// Place management
 router.get(
-  "/businesses",
+  "/places",
   ensureAuthenticated,
   ensureAdmin,
-  adminController.getAllBusinesses
+  adminController.getAllPlaces
 );
 
 // Send notifications
