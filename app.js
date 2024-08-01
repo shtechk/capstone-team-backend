@@ -15,7 +15,9 @@ const errorHandler = require("./middlewares/errorHandler");
 // const { localStrategy, jwtStrategy } = require("./middlewares/passport");
 const categoryRouter = require("./apis/category/routes");
 const placeRouter = require("./apis/place/routes");
+const placeRouter2 = require("./api/place/routes");
 const bookingRouter = require("./apis/booking/routes");
+const booking2Router = require("./api/booking/routes");
 const chatRouter = require("./apis/chat/routes");
 
 const notificationRouter = require("./apis/notification/routes");
@@ -36,8 +38,10 @@ app.use(morgan("dev"));
 app.use(passport.initialize());
 
 // Register routes
+app.use("/api/bookings2", booking2Router);
 app.use("/api/users", userRoutes);
 app.use("/api/businesses", businessRoutes);
+app.use("/api/place2", placeRouter2);
 app.use("/api/vouchers", voucherRouter);
 app.use("/api/ratings", ratingRouter);
 
