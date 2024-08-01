@@ -10,7 +10,10 @@ const User = require("../../models/User");
 
 const getAllRatings = async (req, res, next) => {
   try {
-    const ratings = await Rating.find().populate("user", "first_name");
+    const ratings = await Rating.find({ place: req.params._id }).populate(
+      "user",
+      "first_name"
+    );
     return res.status(200).json(ratings);
   } catch (error) {
     next(error);
@@ -19,13 +22,13 @@ const getAllRatings = async (req, res, next) => {
 
 const addRating = async (req, res, next) => {
   try {
-    req.body.user = req.user._id;
-    //populate?? below
+    userId = req.user.id;
+
     const newRating = await Rating.create(req.body);
     await Place.findByIdAndUpdate(req.body.place, {
       $push: { ratings: newRating },
     });
-    await User.findByIdAndUpdate(req.body.user, {
+    await User.findByIdAndUpdate(userId, {
       $push: { ratings: newRating },
     });
     return res.status(201).json(newRating);

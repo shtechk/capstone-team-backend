@@ -5,6 +5,6 @@ const { ensureAuthenticated } = require("../../middlewares/auth");
 const ratingRouter = express.Router();
 
 ratingRouter.post("/Addrating", ensureAuthenticated, addRating); // for this i need jwt
-ratingRouter.get("/Allratings", getAllRatings); // for this i don't need jwt bc all can view ratings
+ratingRouter.get("/Allratings/:_id", getAllRatings); // for this i don't need jwt bc all can view ratings
 
 module.exports = ratingRouter;
